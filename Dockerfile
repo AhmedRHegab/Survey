@@ -58,16 +58,17 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 # Set ServerName to suppress Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-RUN cat > /etc/apache2/conf-available/laravel-static.conf << 'EOF'
-<FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-    Header set X-Content-Type-Options "nosniff"
-</FilesMatch>
+RUN printf '%s\n' \
+    '<FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$">' \
+    '    Header set Cache-Control "public, max-age=31536000, immutable"' \
+    '    Header set X-Content-Type-Options "nosniff"' \
+    '</FilesMatch>' \
+    '' \
+    '<IfModule mod_deflate.c>' \
+    '    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json' \
+    '</IfModule>' \
+    > /etc/apache2/conf-available/laravel-static.conf
 
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
-</IfModule>
-EOF
 RUN a2enconf laravel-static
 
 # Ensure storage & cache folders exist and are writable
