@@ -1,7 +1,7 @@
 # Use official PHP with Apache
 FROM php:8.2-apache
 
-# System deps + PHP extensions + Node.js required for Laravel
+# System deps + PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x (LTS)
+# Install Node.js 20.x (LTS) - only if needed for asset compilation
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -28,28 +28,33 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy package files first (for better Docker layer caching)
-COPY package*.json ./
+# Copy composer files first
+COPY composer.json composer.lock ./
 
-# Install Node dependencies
-RUN npm install
+# Install PHP dependencies
+RUN composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader --no-scripts
 
-# Copy all project files
-COPY . /var/www/html
-
-RUN composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader --no-scripts && \
-    composer dump-autoload --optimize
-
-RUN npm run build && \
-    if [ ! -f public/mix-manifest.json ]; then \
-        echo "ERROR: Asset compilation failed - mix-manifest.json not found"; \
-        exit 1; \
-    fi
-
-RUN if [ -f .env.example ]; then cp .env.example .env; else echo "APP_NAME=Laravel" > .env; fi
+# Copy all project files (including assets)
+COPY . .
 
 # Generate APP_KEY if not already set
-RUN php artisan key:generate --force || true
+RUN if [ ! -f .env ]; then cp .env.example .env; fi && \
+    php artisan key:generate --force || true
+
+# Only build assets if using Laravel Mix, otherwise skip
+RUN if [ -f package.json ] && [ -f webpack.mix.js ]; then \
+        npm ci --only=production && npm run build; \
+    fi
+
+# Verify assets directory exists
+RUN if [ -d public/assets ]; then \
+        echo "Assets found in public/assets"; \
+        ls -la public/assets/; \
+    else \
+        echo "Warning: No public/assets directory found"; \
+        echo "Current public directory contents:"; \
+        ls -la public/; \
+    fi
 
 # Configure Apache to use Laravel's public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && \
@@ -58,8 +63,17 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 # Set ServerName to suppress Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+# Static file caching - crucial for CSS/JS assets
 RUN printf '%s\n' \
-    '<FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$">' \
+    '<Directory "/var/www/html/public/assets">' \
+    '    Options -Indexes' \
+    '    AllowOverride None' \
+    '    Require all granted' \
+    '    Header set Cache-Control "public, max-age=31536000, immutable"' \
+    '    Header set X-Content-Type-Options "nosniff"' \
+    '</Directory>' \
+    '' \
+    '<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$">' \
     '    Header set Cache-Control "public, max-age=31536000, immutable"' \
     '    Header set X-Content-Type-Options "nosniff"' \
     '</FilesMatch>' \
@@ -72,9 +86,9 @@ RUN printf '%s\n' \
 RUN a2enconf laravel-static
 
 # Ensure storage & cache folders exist and are writable
-RUN mkdir -p storage/logs storage/framework/sessions storage/framework/views storage/framework/cache/data bootstrap/cache && \
+RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache && \
     chown -R www-data:www-data /var/www/html && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+    chmod -R 775 storage bootstrap/cache
 
 # Expose port 80
 EXPOSE 80
@@ -84,4 +98,5 @@ CMD php artisan config:clear && \
     php artisan view:clear && \
     php artisan migrate --force && \
     php artisan storage:link || true && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
     apache2-foreground
