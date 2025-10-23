@@ -1,0 +1,18 @@
+.loading
+{
+    position: relative;
+    text-align: center;
+    z-index: 1000;
+}
+.loading > img
+{
+    position: absolute;
+    mix-blend-mode : multiply;
+    top: 50%;
+    right:35%;
+}
+
+.attachment {
+    height: 200px !important;
+    width: 200px !important;
+}
