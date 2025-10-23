@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('title')
-    الرائسية
+الرئيسية
 @endsection
 
 @section('style')

@@ -6,7 +6,7 @@
             <li class=" nav-item">
                 <a href="{{route('dashboard.index')}}">
                     <i class="la la-home"></i>
-                    <span class="menu-title" data-i18n="Dashboard">الرائسية</span>
+                    <span class="menu-title" data-i18n="Dashboard">الرئيسية/span>
                 </a>
 
             </li>
