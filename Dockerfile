@@ -22,7 +22,13 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy composer files first for better caching
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies (including dev for now to avoid errors)
+RUN composer install --prefer-dist --no-interaction --optimize-autoloader
+
+# Copy rest of project files
 COPY . /var/www/html
 
 # Configure Apache to use Laravel's public directory
@@ -35,9 +41,6 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Ensure storage & cache folders are writable
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
-
-# Install PHP dependencies
-RUN composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader
 
 # Create .env from .env.example if it doesn't exist
 RUN if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || echo "APP_KEY=" > .env; fi
