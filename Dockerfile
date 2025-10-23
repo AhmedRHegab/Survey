@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x (LTS) - only if needed for asset compilation
+# Install Node.js 20.x (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -34,27 +34,42 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader --no-scripts
 
+# Copy package files and install dependencies BEFORE copying all files
+COPY package*.json ./
+
+# Install Node dependencies including dev dependencies for mix
+RUN npm install
+
 # Copy all project files (including assets)
 COPY . .
 
+# Create .env if it doesn't exist (handle missing .env.example)
+RUN if [ ! -f .env ]; then \
+        if [ -f .env.example ]; then \
+            cp .env.example .env; \
+        else \
+            echo "APP_NAME=Laravel" > .env; \
+            echo "APP_ENV=production" >> .env; \
+            echo "APP_KEY=" >> .env; \
+            echo "APP_DEBUG=false" >> .env; \
+        fi; \
+    fi
+
 # Generate APP_KEY if not already set
-RUN if [ ! -f .env ]; then cp .env.example .env; fi && \
-    php artisan key:generate --force || true
+RUN php artisan key:generate --force || true
 
 # Only build assets if using Laravel Mix, otherwise skip
 RUN if [ -f package.json ] && [ -f webpack.mix.js ]; then \
-        npm ci --only=production && npm run build; \
+        npm run build; \
+    else \
+        echo "No webpack.mix.js found - skipping asset compilation"; \
     fi
 
-# Verify assets directory exists
-RUN if [ -d public/assets ]; then \
-        echo "Assets found in public/assets"; \
-        ls -la public/assets/; \
-    else \
-        echo "Warning: No public/assets directory found"; \
-        echo "Current public directory contents:"; \
-        ls -la public/; \
-    fi
+# Debug: Check what's in public directory
+RUN echo "=== Debug: Public directory contents ===" && \
+    ls -la public/ && \
+    echo "=== Debug: Checking for assets ===" && \
+    find public/ -name "*.css" -o -name "*.js" | head -10
 
 # Configure Apache to use Laravel's public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && \
@@ -63,14 +78,12 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 # Set ServerName to suppress Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Static file caching - crucial for CSS/JS assets
+# Static file caching
 RUN printf '%s\n' \
-    '<Directory "/var/www/html/public/assets">' \
-    '    Options -Indexes' \
-    '    AllowOverride None' \
+    '<Directory "/var/www/html/public">' \
+    '    Options Indexes FollowSymLinks' \
+    '    AllowOverride All' \
     '    Require all granted' \
-    '    Header set Cache-Control "public, max-age=31536000, immutable"' \
-    '    Header set X-Content-Type-Options "nosniff"' \
     '</Directory>' \
     '' \
     '<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$">' \
