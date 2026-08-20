@@ -3,11 +3,19 @@ set -e
 
 PORT="${PORT:-80}"
 
-# Point Apache at Railway's assigned PORT (defaults to 80 locally)
-if [ -f /etc/apache2/ports.conf ]; then
-  sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
-fi
+# mod_php requires prefork — ensure no other MPM is enabled
+a2dismod mpm_event 2>/dev/null || true
+a2dismod mpm_worker 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
+# Bind Apache to Railway's PORT (replacing the whole ports file avoids duplicate Listen lines)
+printf 'Listen %s\n' "${PORT}" > /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:.*>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
+
+# Writable dirs before artisan cache commands
+mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 
 # Ensure a usable .env exists (Railway vars still override at runtime)
 if [ ! -f .env ]; then
@@ -29,8 +37,6 @@ php artisan cache:clear || true
 php artisan view:clear || true
 php artisan storage:link || true
 php artisan migrate --force || true
-
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 
 echo "Starting Apache on 0.0.0.0:${PORT}"
 exec apache2-foreground

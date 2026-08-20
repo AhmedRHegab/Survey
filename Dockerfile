@@ -22,8 +22,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 # Install composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Enable Apache rewrite and headers modules
-RUN a2enmod rewrite headers
+# Enable Apache rewrite/headers; keep a single MPM (mod_php needs prefork)
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true && \
+    a2enmod mpm_prefork rewrite headers
 
 # Set working directory
 WORKDIR /var/www/html
