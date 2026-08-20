@@ -42,6 +42,10 @@ RUN npm ci
 # Copy all project files (including assets)
 COPY . .
 
+# Finish Composer autoload + package discovery after full source is present
+RUN composer dump-autoload --optimize && \
+    php artisan package:discover --ansi || true
+
 # Create .env if it doesn't exist (Railway injects real env vars at runtime)
 RUN if [ ! -f .env ]; then \
         if [ -f .env.example ]; then \
@@ -97,15 +101,10 @@ RUN a2enconf laravel-static
 # Ensure storage & cache folders exist and are writable
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache && \
     chown -R www-data:www-data /var/www/html && \
-    chmod -R 775 storage bootstrap/cache
+    chmod -R 775 storage bootstrap/cache && \
+    chmod +x /var/www/html/docker-entrypoint.sh
 
-# Expose port 80
+# Railway injects PORT at runtime (often 8080). Entrypoint rebinds Apache to it.
 EXPOSE 80
 
-CMD php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan view:clear && \
-    php artisan migrate --force && \
-    php artisan storage:link || true && \
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    apache2-foreground
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
