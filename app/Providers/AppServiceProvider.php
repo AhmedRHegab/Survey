@@ -24,12 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Railway terminates TLS at the proxy; force correct public asset URLs.
-        if ($root = config('app.url')) {
-            URL::forceRootUrl(rtrim($root, '/'));
-        }
-
-        if (config('app.env') === 'production' || substr((string) config('app.url'), 0, 8) === 'https://') {
+        // Only force HTTPS. Do NOT forceRootUrl from APP_URL — a stale Railway
+        // domain there makes CSS/JS load from the wrong host.
+        if ((! app()->runningInConsole()) && request()->isSecure()) {
+            URL::forceScheme('https');
+        } elseif (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
     }

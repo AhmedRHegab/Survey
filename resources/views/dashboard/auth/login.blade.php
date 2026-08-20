@@ -4,7 +4,7 @@
     Login
 @endsection
 <!-- END: Head-->
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css-rtl/pages/login-register.css') }}">
+<link rel="stylesheet" type="text/css" href="/assets/css-rtl/pages/login-register.css">
 <!-- BEGIN: Body-->
 
 <body class="vertical-layout vertical-menu-modern 1-column   blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
@@ -21,7 +21,7 @@
                             <div class="card border-grey border-lighten-3 m-0">
                                 <div class="card-header border-0">
                                     <div class="card-title text-center">
-                                        <div class="p-1"><img src="{{ asset('assets/images/logo/logo-dark.png') }}" alt="branding logo"></div>
+                                        <div class="p-1"><img src="/assets/images/logo/logo-dark.png" alt="branding logo"></div>
                                     </div>
                                     <h6 class="card-subtitle line-on-side text-muted text-center font-small-3 pt-2"><span>Login with Survey</span>
                                     </h6>
