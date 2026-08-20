@@ -4,7 +4,7 @@
         <div class="navbar-header">
             <ul class="nav navbar-nav flex-row">
                 <li class="nav-item mobile-menu d-lg-none mr-auto"><a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu font-large-1"></i></a></li>
-                <li class="nav-item mr-auto"><a class="navbar-brand" href="{{route('dashboard.index')}}"><img class="brand-logo" alt="modern admin logo" src={{URL::asset("assets/images/logo/logo.png")}}>
+                <li class="nav-item mr-auto"><a class="navbar-brand" href="{{route('dashboard.index')}}"><img class="brand-logo" alt="modern admin logo" src="/assets/images/logo/logo.png">
                         <h3 class="brand-text">Modern</h3>
                     </a></li>
                 <li class="nav-item d-none d-lg-block nav-toggle"><a class="nav-link modern-nav-toggle pr-0" data-toggle="collapse"><i class="toggle-icon ft-toggle-right font-medium-3 white" data-ticon="ft-toggle-right"></i></a></li>
@@ -86,7 +86,7 @@
                     {{--                            </li>--}}
                     {{--                            <li class="scrollable-container media-list w-100"><a href="javascript:void(0)">--}}
                     {{--                                    <div class="media">--}}
-                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-online rounded-circle"><img src={{URL::asset("assets/images/portrait/small/avatar-s-19.png")}} alt="avatar"><i></i></span></div>--}}
+                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-online rounded-circle"><img src="/assets/images/portrait/small/avatar-s-19.png" alt="avatar"><i></i></span></div>--}}
                     {{--                                        <div class="media-body">--}}
                     {{--                                            <h6 class="media-heading">Margaret Govan</h6>--}}
                     {{--                                            <p class="notification-text font-small-3 text-muted">I like your portfolio, let's start.</p><small>--}}
@@ -95,7 +95,7 @@
                     {{--                                    </div>--}}
                     {{--                                </a><a href="javascript:void(0)">--}}
                     {{--                                    <div class="media">--}}
-                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-busy rounded-circle"><img src={{URL::asset("assets/images/portrait/small/avatar-s-2.png")}} alt="avatar"><i></i></span></div>--}}
+                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-busy rounded-circle"><img src="/assets/images/portrait/small/avatar-s-2.png" alt="avatar"><i></i></span></div>--}}
                     {{--                                        <div class="media-body">--}}
                     {{--                                            <h6 class="media-heading">Bret Lezama</h6>--}}
                     {{--                                            <p class="notification-text font-small-3 text-muted">I have seen your work, there is</p><small>--}}
@@ -104,7 +104,7 @@
                     {{--                                    </div>--}}
                     {{--                                </a><a href="javascript:void(0)">--}}
                     {{--                                    <div class="media">--}}
-                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-online rounded-circle"><img src={{URL::asset("assets/images/portrait/small/avatar-s-3.png")}} alt="avatar"><i></i></span></div>--}}
+                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-online rounded-circle"><img src="/assets/images/portrait/small/avatar-s-3.png" alt="avatar"><i></i></span></div>--}}
                     {{--                                        <div class="media-body">--}}
                     {{--                                            <h6 class="media-heading">Carie Berra</h6>--}}
                     {{--                                            <p class="notification-text font-small-3 text-muted">Can we have call in this week ?</p><small>--}}
@@ -113,7 +113,7 @@
                     {{--                                    </div>--}}
                     {{--                                </a><a href="javascript:void(0)">--}}
                     {{--                                    <div class="media">--}}
-                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-away rounded-circle"><img src="{{URL::asset("assets/images/portrait/small/avatar-s-6.png" )}}" alt="avatar"><i></i></span></div>--}}
+                    {{--                                        <div class="media-left"><span class="avatar avatar-sm avatar-away rounded-circle"><img src="/assets/images/portrait/small/avatar-s-6.png" alt="avatar"><i></i></span></div>--}}
                     {{--                                        <div class="media-body">--}}
                     {{--                                            <h6 class="media-heading">Eric Alsobrook</h6>--}}
                     {{--                                            <p class="notification-text font-small-3 text-muted">We have project party this saturday.</p><small>--}}
@@ -124,7 +124,7 @@
                     {{--                            <li class="dropdown-menu-footer"><a class="dropdown-item text-muted text-center" href="javascript:void(0)">Read all messages</a></li>--}}
                     {{--                        </ul>--}}
                     {{--                    </li>--}}
-                    <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown"><span class="mr-1 user-name text-bold-700">{{auth()->user()->name}}</span><span class="avatar avatar-online"><img src="{{URL::asset("assets/images/portrait/small/avatar-s-19.png" )}}" alt="avatar"><i></i></span></a>
+                    <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown"><span class="mr-1 user-name text-bold-700">{{auth()->user()->name}}</span><span class="avatar avatar-online"><img src="/assets/images/portrait/small/avatar-s-19.png" alt="avatar"><i></i></span></a>
                         <div class="dropdown-menu dropdown-menu-right">
                             <form action="{{route("dashboard.logout")}}" method="post" class="" id="logout">
                                 @csrf

@@ -4,7 +4,7 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/plugins/animate/animate.css')}}">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/plugins/animate/animate.css">
 @endsection
 
 @section('content')

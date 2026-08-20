@@ -16,7 +16,7 @@
     <div class="content-overlay">
     </div>
 {{--   <div class="loading">--}}
-{{--       <img src="{{URL::asset('assets/images/loading.gif')}}" alt="">--}}
+{{--       <img src="/assets/images/loading.gif" alt="">--}}
 {{--   </div>--}}
     <div class="content-wrapper">
         <div class="content-header row">

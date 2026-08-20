@@ -3,11 +3,11 @@
     اشراف العمارات
 @endsection
 @section('style')
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/plugins/animate/animate.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/core/menu/menu-types/vertical-menu-modern.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/core/colors/palette-gradient.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/plugins/forms/checkboxes-radios.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/css-rtl/main.css')}}">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/plugins/animate/animate.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/core/menu/menu-types/vertical-menu-modern.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/core/colors/palette-gradient.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/plugins/forms/checkboxes-radios.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css-rtl/main.css">
 @endsection
 
 @section('content')
@@ -121,7 +121,7 @@
                                                         @foreach($survey->attachments as $attachment)
                                                             <label class="btn col-md-3">
                                                                 <input type="checkbox" name="attachments[]" id="item1" value="{{$attachment->id}}" class="hidden">
-                                                                <img src="{{URL::asset('files/survey/' . $attachment->photo)}}" alt="..." class="check img-thumbnail attachment">
+                                                                <img src="{{ '/files/survey/' . $attachment->photo }}" alt="..." class="check img-thumbnail attachment">
                                                             </label>
                                                         @endforeach
                                                     </div>
@@ -146,12 +146,12 @@
 
         @endsection
 @section('scripts')
-<script src="{{URL::asset('assets/js/main.js')}}"></script>
+<script src="/assets/js/main.js"></script>
 <!-- BEGIN: Page Vendor JS-->
-<script src="{{URL::asset('assets/vendors/js/forms/icheck/icheck.min.js')}}"></script>
+<script src="/assets/vendors/js/forms/icheck/icheck.min.js"></script>
 <!-- END: Page Vendor JS-->
 <!-- BEGIN: Page JS-->
-<script src="{{URL::asset('assets/js/scripts/forms/checkbox-radio.js')}}"></script>
+<script src="/assets/js/scripts/forms/checkbox-radio.js"></script>
 <!-- END: Page JS-->
 
 @endsection

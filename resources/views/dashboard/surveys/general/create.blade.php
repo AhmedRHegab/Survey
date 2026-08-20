@@ -88,5 +88,5 @@
 
         @endsection
 @section('scripts')
-    <script src="{{URL::asset('assets/js/main.js')}}"></script>
+    <script src="/assets/js/main.js"></script>
 @endsection
