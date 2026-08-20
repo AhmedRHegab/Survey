@@ -34,42 +34,38 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader --no-scripts
 
-# Copy package files and install dependencies BEFORE copying all files
+# Copy package files and install dependencies BEFORE copying all files.
+# laravel-mix lives in devDependencies — do NOT use --omit=dev / --only=production here.
 COPY package*.json ./
-
-# Install Node dependencies including dev dependencies for mix
-RUN npm install
+RUN npm ci
 
 # Copy all project files (including assets)
 COPY . .
 
-# Create .env if it doesn't exist (handle missing .env.example)
+# Create .env if it doesn't exist (Railway injects real env vars at runtime)
 RUN if [ ! -f .env ]; then \
         if [ -f .env.example ]; then \
             cp .env.example .env; \
         else \
-            echo "APP_NAME=Laravel" > .env; \
-            echo "APP_ENV=production" >> .env; \
-            echo "APP_KEY=" >> .env; \
-            echo "APP_DEBUG=false" >> .env; \
+            printf '%s\n' \
+                'APP_NAME=Laravel' \
+                'APP_ENV=production' \
+                'APP_KEY=' \
+                'APP_DEBUG=false' \
+                > .env; \
         fi; \
     fi
 
 # Generate APP_KEY if not already set
 RUN php artisan key:generate --force || true
 
-# Only build assets if using Laravel Mix, otherwise skip
+# Compile Mix assets (npx ensures the local binary is used)
 RUN if [ -f package.json ] && [ -f webpack.mix.js ]; then \
-        npm run build; \
+        npx mix --production && \
+        npm prune --omit=dev; \
     else \
         echo "No webpack.mix.js found - skipping asset compilation"; \
     fi
-
-# Debug: Check what's in public directory
-RUN echo "=== Debug: Public directory contents ===" && \
-    ls -la public/ && \
-    echo "=== Debug: Checking for assets ===" && \
-    find public/ -name "*.css" -o -name "*.js" | head -10
 
 # Configure Apache to use Laravel's public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && \
